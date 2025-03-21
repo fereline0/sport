@@ -3,10 +3,34 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:frontend"
+        xmlns:components="clr-namespace:frontend.Components"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Row="0">
+            <ItemsControl ItemsSource="{Binding Products}" Margin="10">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Columns="2" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <components:ProductPreview NameProduct="{Binding Name}" Description="{Binding Description}" Image="{Binding Image}" Price="{Binding Price}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <Border Grid.Row="1" Background="LightGray" Padding="10">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button MinWidth="80">Войти</Button>
+            </StackPanel>
+        </Border>
     </Grid>
 </Window>
