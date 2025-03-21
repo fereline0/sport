@@ -1,17 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.ObjectModel;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using shared.Models;
 
 namespace frontend.Services
 {
-    class UserService : BaseService
+    public class UserService : BaseService
     {
-        public UserService(HttpClient httpClient)
-            : base(httpClient) { }
+        public UserService(IHttpClientFactory httpClientFactory)
+            : base(httpClientFactory) { }
 
         public Task<List<User>> GetAllAsync() => GetAsync<List<User>>("Users");
     }

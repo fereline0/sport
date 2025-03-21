@@ -1,13 +1,17 @@
 ﻿using System.Net.Http;
 using System.Net.Http.Json;
+using System.Threading.Tasks;
 
 public abstract class BaseService
 {
     private readonly HttpClient _httpClient;
 
-    public BaseService(HttpClient httpClient)
+    public BaseService(
+        IHttpClientFactory httpClientFactory,
+        string httpClientName = "DefaultAPIClient"
+    )
     {
-        _httpClient = httpClient;
+        _httpClient = httpClientFactory.CreateClient(httpClientName);
     }
 
     protected async Task<T> GetAsync<T>(string endpoint)
