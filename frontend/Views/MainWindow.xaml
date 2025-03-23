@@ -21,15 +21,16 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <components:ProductPreview NameProduct="{Binding Name}" Description="{Binding Description}" Image="{Binding Image}" Price="{Binding Price}" />
+                        <components:ProductPreview Margin="5" NameProduct="{Binding Name}" Description="{Binding Description}" Image="{Binding Image}" Price="{Binding Price}" />
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </ScrollViewer>
 
-        <Border Grid.Row="1" Background="LightGray" Padding="10">
+        <Border Grid.Row="1" Background="LightGray" Padding="5">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button MinWidth="80">Войти</Button>
+                <Button MinWidth="80" Margin="5" Command="{Binding ReloadCommand}" IsEnabled="{Binding LoadTaskHandler.Loaded}">Обновить</Button>
+                <Button MinWidth="80" Margin="5">Войти</Button>
             </StackPanel>
         </Border>
     </Grid>

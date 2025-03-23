@@ -10,6 +10,6 @@ namespace frontend.Services
         public UserService(IHttpClientFactory httpClientFactory)
             : base(httpClientFactory) { }
 
-        public Task<List<User>> GetAllAsync() => GetAsync<List<User>>("Users");
+        public Task<ServiceResult<List<User>>> GetAllAsync() => GetAsync<List<User>>("Users");
     }
 }

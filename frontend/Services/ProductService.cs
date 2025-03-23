@@ -10,6 +10,7 @@ namespace frontend.Services
         public ProductService(IHttpClientFactory httpClientFactory)
             : base(httpClientFactory) { }
 
-        public Task<List<Product>> GetAllAsync() => GetAsync<List<Product>>("Products");
+        public Task<ServiceResult<List<Product>>> GetAllAsync() =>
+            GetAsync<List<Product>>("Products");
     }
 }

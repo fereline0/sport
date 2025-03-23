@@ -42,18 +42,17 @@ namespace frontend
         private void ConfigureServices(IServiceCollection services)
         {
             var apiURI = _configuration["API:URI"];
+
             if (string.IsNullOrEmpty(apiURI))
             {
                 throw new InvalidOperationException("API base URL is not configured.");
             }
 
-            Uri uri = new Uri(apiURI);
-
             services.AddHttpClient(
                 "DefaultAPIClient",
                 client =>
                 {
-                    client.BaseAddress = uri;
+                    client.BaseAddress = new Uri(apiURI);
                 }
             );
 
