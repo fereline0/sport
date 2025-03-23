@@ -36,12 +36,12 @@ namespace frontend.Utils
             Loaded = false;
             try
             {
+                await _task();
+
                 if (_delayMilliseconds > 0)
                 {
                     await Task.Delay(_delayMilliseconds);
                 }
-
-                await _task();
             }
             finally
             {
