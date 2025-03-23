@@ -22,15 +22,15 @@ public abstract class BaseService
             HttpResponseMessage response = await _httpClient.GetAsync(endpoint);
             response.EnsureSuccessStatusCode();
             T? data = await response.Content.ReadFromJsonAsync<T>();
-            return new ServiceResult<T> { Data = data };
+            return new ServiceResult<T>(data);
         }
         catch (HttpRequestException ex)
         {
-            return new ServiceResult<T> { Error = ex.Message };
+            return new ServiceResult<T>(default, ex.Message);
         }
         catch (Exception ex)
         {
-            return new ServiceResult<T> { Error = ex.Message };
+            return new ServiceResult<T>(default, ex.Message);
         }
     }
 
@@ -48,11 +48,11 @@ public abstract class BaseService
         }
         catch (HttpRequestException ex)
         {
-            return new ServiceResult<TResponse> { Error = ex.Message };
+            return new ServiceResult<TResponse>(default, ex.Message);
         }
         catch (Exception ex)
         {
-            return new ServiceResult<TResponse> { Error = ex.Message };
+            return new ServiceResult<TResponse>(default, ex.Message);
         }
     }
 
@@ -66,11 +66,11 @@ public abstract class BaseService
         }
         catch (HttpRequestException ex)
         {
-            return new ServiceResult { Error = ex.Message };
+            return new ServiceResult(ex.Message);
         }
         catch (Exception ex)
         {
-            return new ServiceResult { Error = ex.Message };
+            return new ServiceResult(ex.Message);
         }
     }
 
@@ -88,11 +88,11 @@ public abstract class BaseService
         }
         catch (HttpRequestException ex)
         {
-            return new ServiceResult<TResponse> { Error = ex.Message };
+            return new ServiceResult<TResponse>(default, ex.Message);
         }
         catch (Exception ex)
         {
-            return new ServiceResult<TResponse> { Error = ex.Message };
+            return new ServiceResult<TResponse>(default, ex.Message);
         }
     }
 
@@ -106,11 +106,11 @@ public abstract class BaseService
         }
         catch (HttpRequestException ex)
         {
-            return new ServiceResult { Error = ex.Message };
+            return new ServiceResult(ex.Message);
         }
         catch (Exception ex)
         {
-            return new ServiceResult { Error = ex.Message };
+            return new ServiceResult(ex.Message);
         }
     }
 
@@ -124,11 +124,11 @@ public abstract class BaseService
         }
         catch (HttpRequestException ex)
         {
-            return new ServiceResult { Error = ex.Message };
+            return new ServiceResult(ex.Message);
         }
         catch (Exception ex)
         {
-            return new ServiceResult { Error = ex.Message };
+            return new ServiceResult(ex.Message);
         }
     }
 }

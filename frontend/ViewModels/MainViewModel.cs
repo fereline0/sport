@@ -3,7 +3,6 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using frontend.Commands;
 using frontend.Services;
-using frontend.Utils;
 using shared.Models;
 
 namespace frontend.ViewModels
@@ -17,7 +16,7 @@ namespace frontend.ViewModels
 
         public MainViewModel(ProductService productService)
         {
-            LoadTaskHandler = new TaskHandler(Load);
+            LoadTaskHandler = new TaskHandler(Load, 100);
             Products = new ObservableCollection<Product>();
             _productService = productService;
             ReloadCommand = new RelayCommand(LoadTaskHandler.Execute);
