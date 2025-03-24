@@ -25,10 +25,10 @@ namespace any.Controllers
         [HttpPost("login")]
         public IActionResult Login([FromBody] User user)
         {
-            var hashedPassword = Hash.ToMD5(user.Password);
+            //var hashedPassword = Hash.ToMD5(user.Password);
 
             var dbUser = _context.User.SingleOrDefault(u => u.Email == user.Email);
-            if (dbUser == null || dbUser.Password != hashedPassword)
+            if (dbUser == null || dbUser.Password != user.Password)
             {
                 return Unauthorized();
             }

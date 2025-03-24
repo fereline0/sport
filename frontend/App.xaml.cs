@@ -3,6 +3,7 @@ using System.IO;
 using System.Net.Http;
 using System.Windows;
 using frontend.Services;
+using frontend.Views;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -35,8 +36,8 @@ namespace frontend
 
             _serviceProvider = serviceCollection.BuildServiceProvider();
 
-            var mainWindow = _serviceProvider.GetRequiredService<MainWindow>();
-            mainWindow.Show();
+            var mainView = _serviceProvider.GetRequiredService<MainView>();
+            mainView.Show();
         }
 
         private void ConfigureServices(IServiceCollection services)
@@ -56,9 +57,11 @@ namespace frontend
                 }
             );
 
+            services.AddTransient<AuthService>();
             services.AddTransient<UserService>();
             services.AddTransient<ProductService>();
-            services.AddTransient<MainWindow>();
+            services.AddTransient<MainView>();
+            services.AddTransient<LoginView>();
         }
     }
 }
