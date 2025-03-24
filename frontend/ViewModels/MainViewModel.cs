@@ -24,7 +24,7 @@ namespace frontend.ViewModels
             AuthService authService
         )
         {
-            LoadTaskHandler = new TaskHandler(Load);
+            LoadTaskHandler = new TaskHandler(Load, 2000);
             Products = new ObservableCollection<Product>();
             _mainView = mainView;
             _productService = productService;
