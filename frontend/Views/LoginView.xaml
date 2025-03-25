@@ -16,7 +16,7 @@
                 <TextBox Text="{Binding Email}"/>
                 <Label Content="Пароль"/>
                 <PasswordBox x:Name="Password" PasswordChanged="PasswordBox_PasswordChanged"/>
-                <Button Command="{Binding LoginCommand}" IsEnabled="{Binding LoginTaskHandler.Loaded}" Margin="0 20 0 0">Войти</Button>
+                <Button Command="{Binding LoginCommand}" Margin="0 20 0 0">Войти</Button>
             </StackPanel>
         </Border>
     </ScrollViewer>

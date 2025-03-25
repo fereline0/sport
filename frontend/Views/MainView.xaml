@@ -29,7 +29,7 @@
 
         <Border Grid.Row="1" Background="LightGray" Padding="5">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button MinWidth="80" Margin="5" Command="{Binding ReloadCommand}" IsEnabled="{Binding LoadTaskHandler.Loaded}">Обновить</Button>
+                <Button MinWidth="80" Margin="5" Command="{Binding ReloadCommand}">Обновить</Button>
                 <Button MinWidth="80" Margin="5" Command="{Binding LoginCommand}">Войти</Button>
             </StackPanel>
         </Border>

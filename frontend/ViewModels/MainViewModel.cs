@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 using System.Windows;
 using frontend.Commands;
 using frontend.Services;
+using frontend.Utils.frontend;
 using frontend.Views;
 using shared.Models;
 
@@ -10,49 +12,48 @@ namespace frontend.ViewModels
 {
     public class MainViewModel : NotifyPropertyChanged
     {
-        private readonly ProductService _productService;
-        private readonly AuthService _authService;
-        private readonly MainView _mainView;
-        public TaskHandler LoadTaskHandler { get; set; }
-        public ObservableCollection<Product> Products { get; set; }
-        public AsyncRelayCommand ReloadCommand { get; set; }
-        public RelayCommand LoginCommand { get; set; }
+        private readonly ProductService ProductService;
+        private readonly WindowManager WindowManager;
 
-        public MainViewModel(
-            MainView mainView,
-            ProductService productService,
-            AuthService authService
-        )
+        public TaskHandler LoadTaskHandler { get; }
+        public ObservableCollection<Product> Products { get; }
+        public AsyncRelayCommand ReloadCommand { get; }
+        public RelayCommand LoginCommand { get; }
+
+        public MainViewModel(ProductService productService, WindowManager windowManager)
         {
-            LoadTaskHandler = new TaskHandler(Load, 2000);
+            ProductService = productService;
+            WindowManager = windowManager;
+
+            LoadTaskHandler = new TaskHandler(Load);
             Products = new ObservableCollection<Product>();
-            _mainView = mainView;
-            _productService = productService;
-            _authService = authService;
-            ReloadCommand = new AsyncRelayCommand(LoadTaskHandler.Execute);
+
+            ReloadCommand = new AsyncRelayCommand(LoadTaskHandler.Execute, CanReload);
             LoginCommand = new RelayCommand(OpenLogin);
+
             LoadTaskHandler.Execute();
         }
 
-        public void OpenLogin()
+        private bool CanReload() => LoadTaskHandler.Loaded;
+
+        private void OpenLogin()
         {
-            LoginView loginView = new LoginView(_authService);
-            loginView.Show();
-            _mainView.Close();
+            WindowManager.ShowWindow<LoginView>();
+            WindowManager.CloseWindow<MainView>();
         }
 
         public async Task Load()
         {
-            ServiceResult<List<Product>> products = await _productService.GetProductsAsync();
-            List<Product> data = products.Data!;
+            var products = await ProductService.GetProductsAsync();
 
-            if (products.Error != null)
+            if (products.Error != null || products.Data == null)
             {
+                MessageBox.Show("Error loading products");
                 return;
             }
 
             Products.Clear();
-            foreach (Product product in data)
+            foreach (var product in products.Data)
             {
                 Products.Add(product);
             }

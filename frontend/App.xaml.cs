@@ -3,6 +3,8 @@ using System.IO;
 using System.Net.Http;
 using System.Windows;
 using frontend.Services;
+using frontend.Utils;
+using frontend.Utils.frontend;
 using frontend.Views;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,17 +13,17 @@ namespace frontend
 {
     public partial class App : Application
     {
-        private IServiceProvider _serviceProvider;
-        private IConfiguration _configuration;
+        private IServiceProvider ServiceProvider;
+        private IConfiguration Configuration;
 
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
 
-            var environment =
+            string? environment =
                 Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production";
 
-            _configuration = new ConfigurationBuilder()
+            Configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                 .AddJsonFile(
@@ -31,18 +33,22 @@ namespace frontend
                 )
                 .Build();
 
-            var serviceCollection = new ServiceCollection();
+            TokenStorage.Initialize(Configuration);
+
+            ServiceCollection? serviceCollection = new ServiceCollection();
             ConfigureServices(serviceCollection);
 
-            _serviceProvider = serviceCollection.BuildServiceProvider();
+            ServiceProvider = serviceCollection.BuildServiceProvider();
 
-            var mainView = _serviceProvider.GetRequiredService<MainView>();
-            mainView.Show();
+            Current.ShutdownMode = ShutdownMode.OnLastWindowClose;
+
+            WindowManager windowManager = ServiceProvider.GetRequiredService<WindowManager>();
+            windowManager.ShowWindow<MainView>();
         }
 
         private void ConfigureServices(IServiceCollection services)
         {
-            var apiURI = _configuration["API:URI"];
+            var apiURI = Configuration["API:URI"];
 
             if (string.IsNullOrEmpty(apiURI))
             {
@@ -62,6 +68,7 @@ namespace frontend
             services.AddTransient<ProductService>();
             services.AddTransient<MainView>();
             services.AddTransient<LoginView>();
+            services.AddSingleton<WindowManager>();
         }
     }
 }

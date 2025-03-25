@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "frontend": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

@@ -3,24 +3,34 @@ using System.Windows;
 using System.Windows.Controls;
 using frontend.Commands;
 using frontend.Services;
+using frontend.Utils;
+using frontend.Utils.frontend;
+using frontend.Views;
 using shared.Models;
 
 namespace frontend.ViewModels
 {
     public class LoginViewModel : NotifyPropertyChanged
     {
-        private readonly AuthService _authService;
+        private readonly AuthService AuthService;
+        private readonly WindowManager WindowManager;
         private string _name;
         private string _email;
         public string Password { private get; set; }
         public TaskHandler LoginTaskHandler { get; set; }
         public AsyncRelayCommand LoginCommand { get; set; }
 
-        public LoginViewModel(AuthService authService)
+        public LoginViewModel(AuthService authService, WindowManager windowManager)
         {
-            _authService = authService;
-            LoginTaskHandler = new TaskHandler(Login, 1000);
-            LoginCommand = new AsyncRelayCommand(LoginTaskHandler.Execute);
+            AuthService = authService;
+            WindowManager = windowManager;
+            LoginTaskHandler = new TaskHandler(Login);
+            LoginCommand = new AsyncRelayCommand(LoginTaskHandler.Execute, CanLogin);
+        }
+
+        private bool CanLogin()
+        {
+            return LoginTaskHandler.Loaded;
         }
 
         public string Name
@@ -58,7 +68,18 @@ namespace frontend.ViewModels
                 Password = Password,
             };
 
-            ServiceResult<Auth> auth = await _authService.PostAuthAsync(user);
+            ServiceResult<Auth> auth = await AuthService.PostAuthAsync(user);
+
+            MessageBox.Show(auth.Data.token);
+
+            if (auth.Data == null)
+            {
+                return;
+            }
+
+            TokenStorage.SaveToken(auth.Data.token);
+            WindowManager.ShowWindow<MainView>();
+            WindowManager.CloseWindow<LoginView>();
         }
     }
 }
