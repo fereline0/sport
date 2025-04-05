@@ -13,8 +13,8 @@ namespace frontend
 {
     public partial class App : Application
     {
-        private IServiceProvider ServiceProvider;
-        private IConfiguration Configuration;
+        private IServiceProvider? ServiceProvider;
+        private IConfiguration? Configuration;
 
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -33,9 +33,7 @@ namespace frontend
                 )
                 .Build();
 
-            TokenStorage.Initialize(Configuration);
-
-            ServiceCollection? serviceCollection = new ServiceCollection();
+            ServiceCollection serviceCollection = new ServiceCollection();
             ConfigureServices(serviceCollection);
 
             ServiceProvider = serviceCollection.BuildServiceProvider();
@@ -48,23 +46,37 @@ namespace frontend
 
         private void ConfigureServices(IServiceCollection services)
         {
-            var apiURI = Configuration["API:URI"];
+            services.AddSingleton(Configuration!);
 
+            services.AddSingleton<TokenStorage>();
+
+            string? apiURI = Configuration!["API:URI"];
             if (string.IsNullOrEmpty(apiURI))
             {
                 throw new InvalidOperationException("API base URL is not configured.");
             }
+
+            TokenStorage? tokenStorage = services
+                .BuildServiceProvider()
+                .GetRequiredService<TokenStorage>();
+            string? token = tokenStorage.LoadToken();
 
             services.AddHttpClient(
                 "DefaultAPIClient",
                 client =>
                 {
                     client.BaseAddress = new Uri(apiURI);
+
+                    if (!string.IsNullOrEmpty(token))
+                    {
+                        client.DefaultRequestHeaders.Add("Authorization", "Bearer " + token);
+                    }
                 }
             );
 
             services.AddTransient<AuthService>();
             services.AddTransient<UserService>();
+            services.AddTransient<OrderItemsService>();
             services.AddTransient<ProductService>();
             services.AddTransient<MainView>();
             services.AddTransient<LoginView>();

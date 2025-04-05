@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using backend.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using backend.Data;
+using shared.Enums;
 using shared.Models;
 
 namespace backend.Controllers
@@ -40,6 +43,54 @@ namespace backend.Controllers
             }
 
             return user;
+        }
+
+        // GET: api/Users/me
+        [HttpGet("me")]
+        [Authorize]
+        public async Task<ActionResult<User>> GetAuthedUser()
+        {
+            Claim? userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+            {
+                return Unauthorized();
+            }
+
+            int userId = int.Parse(userIdClaim.Value);
+            User? user = await _context.User.FindAsync(userId);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            return user;
+        }
+
+        // GET: api/Users/5/orders
+        [HttpGet("{id}/orders")]
+        public async Task<ActionResult<IEnumerable<Order>>> GetOrdersByUser(
+            int id,
+            [FromQuery] OrderStatus? status = null
+        )
+        {
+            var query = _context.Order.AsQueryable();
+
+            query = query.Where(o => o.UserId == id);
+
+            if (status.HasValue)
+            {
+                query = query.Where(o => o.OrderStatus == status.Value);
+            }
+
+            var orders = await query.ToListAsync();
+
+            if (orders == null || !orders.Any())
+            {
+                return NotFound();
+            }
+
+            return orders;
         }
 
         // PUT: api/Users/5

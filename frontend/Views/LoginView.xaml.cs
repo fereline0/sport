@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using frontend.Services;
+using frontend.Utils;
 using frontend.Utils.frontend;
 using frontend.ViewModels;
 
@@ -22,10 +23,14 @@ namespace frontend.Views
     /// </summary>
     public partial class LoginView : Window
     {
-        public LoginView(AuthService authService, WindowManager windowManager)
+        public LoginView(
+            AuthService authService,
+            TokenStorage tokenStorage,
+            WindowManager windowManager
+        )
         {
             InitializeComponent();
-            DataContext = new LoginViewModel(authService, windowManager);
+            DataContext = new LoginViewModel(authService, tokenStorage, windowManager);
         }
 
         private void PasswordBox_PasswordChanged(object sender, RoutedEventArgs e)

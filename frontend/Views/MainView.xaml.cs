@@ -10,10 +10,20 @@ namespace frontend
 {
     public partial class MainView : Window
     {
-        public MainView(ProductService productService, WindowManager windowManager)
+        public MainView(
+            ProductService productService,
+            UserService userService,
+            OrderItemsService orderItemsService,
+            WindowManager windowManager
+        )
         {
             InitializeComponent();
-            DataContext = new MainViewModel(productService, windowManager);
+            DataContext = new MainViewModel(
+                productService,
+                userService,
+                orderItemsService,
+                windowManager
+            );
         }
     }
 }

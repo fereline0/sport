@@ -13,24 +13,28 @@ namespace frontend.ViewModels
     public class LoginViewModel : NotifyPropertyChanged
     {
         private readonly AuthService AuthService;
+        private readonly TokenStorage TokenStorage;
         private readonly WindowManager WindowManager;
         private string _name;
         private string _email;
         public string Password { private get; set; }
-        public TaskHandler LoginTaskHandler { get; set; }
         public AsyncRelayCommand LoginCommand { get; set; }
 
-        public LoginViewModel(AuthService authService, WindowManager windowManager)
+        public LoginViewModel(
+            AuthService authService,
+            TokenStorage tokenStorage,
+            WindowManager windowManager
+        )
         {
             AuthService = authService;
+            TokenStorage = tokenStorage;
             WindowManager = windowManager;
-            LoginTaskHandler = new TaskHandler(Login);
-            LoginCommand = new AsyncRelayCommand(LoginTaskHandler.Execute, CanLogin);
+            LoginCommand = new AsyncRelayCommand(Login, CanLogin);
         }
 
         private bool CanLogin()
         {
-            return LoginTaskHandler.Loaded;
+            return LoginCommand.IsExecuted;
         }
 
         public string Name
@@ -61,16 +65,14 @@ namespace frontend.ViewModels
 
         public async Task Login()
         {
-            User user = new User
+            var user = new User
             {
                 Name = Name,
                 Email = Email,
                 Password = Password,
             };
 
-            ServiceResult<Auth> auth = await AuthService.PostAuthAsync(user);
-
-            MessageBox.Show(auth.Data.token);
+            var auth = await AuthService.PostAuthAsync(user);
 
             if (auth.Data == null)
             {

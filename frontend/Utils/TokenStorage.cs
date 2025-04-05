@@ -7,46 +7,44 @@ using Microsoft.Extensions.Configuration;
 
 namespace frontend.Utils
 {
-    public static class TokenStorage
+    public class TokenStorage
     {
-        private static IConfiguration _configuration;
-        private static string _appName;
+        private readonly IConfiguration _configuration;
+        private readonly string _appName;
 
-        public static void Initialize(IConfiguration configuration)
+        public TokenStorage(IConfiguration configuration)
         {
-            _configuration = configuration;
-            _appName = _configuration["Application:Name"] ?? _appName;
+            _configuration =
+                configuration ?? throw new ArgumentNullException(nameof(configuration));
+            _appName = _configuration["Application:Name"] ?? "DefaultAppName";
         }
 
-        private static string TokenFilePath =>
+        private string TokenFilePath =>
             Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
                 _appName,
                 "token.dat"
             );
 
-        private static byte[] GetEncryptionKey()
+        private byte[] GetEncryptionKey()
         {
-            string key = _configuration["JwtSettings:Secret"];
+            string key = _configuration["JwtSettings:Secret"]!;
 
             if (string.IsNullOrEmpty(key) || key.Length != 32)
             {
                 throw new InvalidOperationException(
-                    "Invalid encryption key configuration. Key must be 32 bytes long."
+                    $"Invalid key length: {key.Length}. Key must be 32 bytes long."
                 );
             }
 
             return Encoding.UTF8.GetBytes(key);
         }
 
-        public static void SaveToken(string token)
+        public void SaveToken(string token)
         {
             try
             {
-                if (_configuration == null)
-                    throw new InvalidOperationException("TokenStorage not initialized");
-
-                Directory.CreateDirectory(Path.GetDirectoryName(TokenFilePath));
+                Directory.CreateDirectory(Path.GetDirectoryName(TokenFilePath)!);
                 byte[] key = GetEncryptionKey();
 
                 using (var aes = Aes.Create())
@@ -80,15 +78,12 @@ namespace frontend.Utils
             }
         }
 
-        public static string LoadToken()
+        public string LoadToken()
         {
             try
             {
-                if (_configuration == null)
-                    throw new InvalidOperationException("TokenStorage not initialized");
-
                 if (!File.Exists(TokenFilePath))
-                    return null;
+                    return string.Empty;
 
                 byte[] key = GetEncryptionKey();
 
@@ -120,11 +115,11 @@ namespace frontend.Utils
                     MessageBoxButton.OK,
                     MessageBoxImage.Error
                 );
-                return null;
+                return string.Empty;
             }
         }
 
-        public static void ClearToken()
+        public void ClearToken()
         {
             try
             {

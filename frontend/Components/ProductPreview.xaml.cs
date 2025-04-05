@@ -1,7 +1,5 @@
-﻿using System.Collections.ObjectModel;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using shared.Models;
 
 namespace frontend.Components
 {
@@ -16,8 +14,8 @@ namespace frontend.Components
 
         public string NameProduct
         {
-            get { return (string)GetValue(NameProperty); }
-            set { SetValue(NameProperty, value); }
+            get { return (string)GetValue(NameProductProperty); }
+            set { SetValue(NameProductProperty, value); }
         }
 
         public static readonly DependencyProperty DescriptionProperty = DependencyProperty.Register(
@@ -57,6 +55,19 @@ namespace frontend.Components
         {
             get { return (string)GetValue(ImageProperty); }
             set { SetValue(ImageProperty, value); }
+        }
+
+        public static readonly DependencyProperty EndContentProperty = DependencyProperty.Register(
+            "EndContent",
+            typeof(UIElement),
+            typeof(ProductPreview),
+            new PropertyMetadata(null)
+        );
+
+        public UIElement EndContent
+        {
+            get { return (UIElement)GetValue(EndContentProperty); }
+            set { SetValue(EndContentProperty, value); }
         }
 
         public ProductPreview()

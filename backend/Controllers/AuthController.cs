@@ -34,7 +34,7 @@ namespace any.Controllers
             }
 
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_configuration["JwtSettings:Secret"]);
+            var key = Encoding.ASCII.GetBytes(_configuration["JwtSettings:Secret"]!);
 
             var claims = new List<Claim>
             {

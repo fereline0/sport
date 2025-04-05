@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace frontend.Commands
@@ -11,6 +10,12 @@ namespace frontend.Commands
 
         public RelayCommand(Action execute, Func<bool> canExecute = null)
             : this(p => execute(), canExecute != null ? p => canExecute() : null) { }
+
+        public RelayCommand(Action<object> execute, Func<bool> canExecute = null)
+            : this(execute, canExecute != null ? p => canExecute() : null) { }
+
+        public RelayCommand(Action execute, Func<object, bool> canExecute)
+            : this(p => execute(), canExecute) { }
 
         public RelayCommand(Action<object> execute, Func<object, bool> canExecute = null)
         {

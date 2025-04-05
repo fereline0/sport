@@ -7,6 +7,7 @@
             <TextBlock Text="{Binding NameProduct, RelativeSource={RelativeSource AncestorType=UserControl}}" FontWeight="Bold" FontSize="16"/>
             <TextBlock Text="{Binding Description, RelativeSource={RelativeSource AncestorType=UserControl}}" TextWrapping="Wrap"/>
             <TextBlock Text="{Binding Price, RelativeSource={RelativeSource AncestorType=UserControl}}" FontWeight="Bold"/>
+            <ContentPresenter Content="{Binding EndContent, RelativeSource={RelativeSource AncestorType=UserControl}}" />
         </StackPanel>
     </Border>
 </UserControl>
