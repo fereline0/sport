@@ -14,5 +14,7 @@ namespace frontend.Services
 
         public Task<ServiceResult<OrderItem>> PostOrderItemAsync(OrderItem orderItem) =>
             PostAsync<OrderItem, OrderItem>("OrderItems", orderItem);
+
+        public Task<ServiceResult> DeleteOrderItemAsync(int id) => DeleteAsync($"OrderItems/{id}");
     }
 }

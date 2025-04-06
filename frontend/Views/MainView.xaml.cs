@@ -13,7 +13,9 @@ namespace frontend
         public MainView(
             ProductService productService,
             UserService userService,
+            OrderService orderService,
             OrderItemsService orderItemsService,
+            TokenStorage tokenStorage,
             WindowManager windowManager
         )
         {
@@ -21,7 +23,9 @@ namespace frontend
             DataContext = new MainViewModel(
                 productService,
                 userService,
+                orderService,
                 orderItemsService,
+                tokenStorage,
                 windowManager
             );
         }

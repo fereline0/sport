@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
-using frontend.Commands;
+using CommunityToolkit.Mvvm.Input;
 using frontend.Services;
 using frontend.Utils;
 using frontend.Utils.frontend;
@@ -15,9 +15,9 @@ namespace frontend.ViewModels
         private readonly AuthService AuthService;
         private readonly TokenStorage TokenStorage;
         private readonly WindowManager WindowManager;
-        private string _name;
-        private string _email;
-        public string Password { private get; set; }
+        private string? _name;
+        private string? _email;
+        public string? Password { private get; set; }
         public AsyncRelayCommand LoginCommand { get; set; }
 
         public LoginViewModel(
@@ -34,10 +34,10 @@ namespace frontend.ViewModels
 
         private bool CanLogin()
         {
-            return LoginCommand.IsExecuted;
+            return !LoginCommand.IsRunning;
         }
 
-        public string Name
+        public string? Name
         {
             get => _name;
             set
@@ -50,7 +50,7 @@ namespace frontend.ViewModels
             }
         }
 
-        public string Email
+        public string? Email
         {
             get => _email;
             set
@@ -72,14 +72,14 @@ namespace frontend.ViewModels
                 Password = Password,
             };
 
-            var auth = await AuthService.PostAuthAsync(user);
+            var postedAuthResult = await AuthService.PostAuthAsync(user);
 
-            if (auth.Data == null)
+            if (postedAuthResult.Data == null)
             {
                 return;
             }
 
-            TokenStorage.SaveToken(auth.Data.token);
+            TokenStorage.SaveToken(postedAuthResult.Data.token!);
             WindowManager.ShowWindow<MainView>();
             WindowManager.CloseWindow<LoginView>();
         }

@@ -1,17 +1,13 @@
-﻿namespace shared.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace shared.Models
 {
     public class OrderItem : BaseModel
     {
-        public OrderItem()
-        {
-            Product = new Product();
-            Order = new Order();
-        }
-
+        [Required]
         public int ProductId { get; set; }
-        public Product Product { get; set; }
-        public int Quantity { get; set; }
+
+        [Required]
         public int OrderId { get; set; }
-        public Order Order { get; set; }
     }
 }

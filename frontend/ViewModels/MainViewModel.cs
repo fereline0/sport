@@ -1,125 +1,263 @@
-﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows;
-using frontend.Commands;
+using System.Windows.Controls;
+using CommunityToolkit.Mvvm.Input;
+using frontend;
 using frontend.Services;
+using frontend.Utils;
 using frontend.Utils.frontend;
+using frontend.ViewModels;
 using frontend.Views;
 using shared.Models;
 
-namespace frontend.ViewModels
+public class MainViewModel : NotifyPropertyChanged
 {
-    public class MainViewModel : NotifyPropertyChanged
+    private readonly ProductService ProductService;
+    private readonly UserService UserService;
+    private readonly OrderService OrderService;
+    private readonly OrderItemsService OrderItemsService;
+    private readonly TokenStorage TokenStorage;
+    private readonly WindowManager WindowManager;
+
+    public ObservableCollection<Product> Products { get; } = new ObservableCollection<Product>();
+    public AsyncRelayCommand ReloadCommand { get; }
+    public RelayCommand LoginCommand { get; set; }
+    public RelayCommand LogoutCommand { get; set; }
+    public AsyncRelayCommand<Product> AddToOrderCommand { get; }
+    public AsyncRelayCommand<Product> RemoveFromOrderCommand { get; }
+
+    private bool _isLoggedIn;
+    public bool IsLoggedIn
     {
-        private readonly ProductService ProductService;
-        private readonly UserService UserService;
-        private readonly OrderItemsService OrderItemsService;
-        private readonly WindowManager WindowManager;
-
-        public ObservableCollection<Product> Products { get; } =
-            new ObservableCollection<Product>();
-        public AsyncRelayCommand ReloadCommand { get; }
-        public RelayCommand LoginCommand { get; set; }
-        public AsyncRelayCommand AddToOrderCommand { get; }
-        public AsyncRelayCommand RemoveFromOrderCommand { get; }
-        private User? _authedUser;
-        public User? AuthedUser
+        get => _isLoggedIn;
+        set
         {
-            get => _authedUser;
-            set
+            if (_isLoggedIn != value)
             {
-                if (_authedUser != value)
-                {
-                    _authedUser = value;
-                    OnPropertyChanged(nameof(AuthedUser));
-                }
+                _isLoggedIn = value;
+                OnPropertyChanged(nameof(IsLoggedIn));
+                AddToOrderCommand.NotifyCanExecuteChanged();
+                RemoveFromOrderCommand.NotifyCanExecuteChanged();
+                LoginCommand.NotifyCanExecuteChanged();
+                LogoutCommand.NotifyCanExecuteChanged();
             }
         }
-        private bool HasOrders;
+    }
 
-        public MainViewModel(
-            ProductService productService,
-            UserService userService,
-            OrderItemsService orderItemsService,
-            WindowManager windowManager
-        )
+    private User? _authedUser;
+    public User? AuthedUser
+    {
+        get => _authedUser;
+        set
         {
-            ProductService = productService;
-            UserService = userService;
-            OrderItemsService = orderItemsService;
-            WindowManager = windowManager;
-            ReloadCommand = new AsyncRelayCommand(LoadData, CanReload);
-            LoginCommand = new RelayCommand(OpenLogin, CanLogin);
-            AddToOrderCommand = new AsyncRelayCommand(AddToOrder, CanAddToOrder);
-            RemoveFromOrderCommand = new AsyncRelayCommand(RemoveFromOrder, CanRemoveToOrder);
-
-            LoadData().ConfigureAwait(false);
-        }
-
-        private bool CanLogin() => AuthedUser == null;
-
-        private bool CanReload() => ReloadCommand.IsExecuted;
-
-        private bool CanAddToOrder() => AddToOrderCommand.IsExecuted;
-
-        private bool CanRemoveToOrder() => RemoveFromOrderCommand.IsExecuted;
-
-        private async Task LoadData()
-        {
-            await LoadProducts();
-            await CheckUserAuth();
-        }
-
-        private async Task LoadProducts()
-        {
-            var products = await ProductService.GetProductsAsync();
-
-            if (products.Error != null || products.Data == null)
+            if (_authedUser != value)
             {
-                MessageBox.Show("Не удалось загрузить список товаров");
+                _authedUser = value;
+                IsLoggedIn = _authedUser != null;
+                OnPropertyChanged(nameof(AuthedUser));
+            }
+        }
+    }
+    private bool _hasOrder;
+    public bool HasOrder
+    {
+        get => _hasOrder;
+        set
+        {
+            if (_hasOrder != value)
+            {
+                _hasOrder = value;
+                OnPropertyChanged(nameof(HasOrder));
+                RemoveFromOrderCommand.NotifyCanExecuteChanged();
+            }
+        }
+    }
+    private Order? _order;
+    public Order? Order
+    {
+        get => _order;
+        set
+        {
+            if (_order != value)
+            {
+                _order = value;
+                HasOrder = _order != null;
+            }
+        }
+    }
+    public ObservableCollection<OrderItem> OrderItems { get; } =
+        new ObservableCollection<OrderItem>();
+
+    public MainViewModel(
+        ProductService productService,
+        UserService userService,
+        OrderService orderService,
+        OrderItemsService orderItemsService,
+        TokenStorage tokenStorage,
+        WindowManager windowManager
+    )
+    {
+        ProductService = productService;
+        UserService = userService;
+        OrderService = orderService;
+        OrderItemsService = orderItemsService;
+        TokenStorage = tokenStorage;
+        WindowManager = windowManager;
+        ReloadCommand = new AsyncRelayCommand(LoadData, CanReload);
+        LoginCommand = new RelayCommand(OpenLogin, CanLogin);
+        LogoutCommand = new RelayCommand(Logout, CanLogout);
+        AddToOrderCommand = new AsyncRelayCommand<Product>(AddToOrder, CanAddToOrder);
+        RemoveFromOrderCommand = new AsyncRelayCommand<Product>(
+            RemoveFromOrder,
+            CanRemoveFromOrder
+        );
+
+        LoadData().ConfigureAwait(false);
+    }
+
+    private bool CanLogin() => !IsLoggedIn;
+
+    private bool CanLogout() => IsLoggedIn;
+
+    private bool CanReload() => !ReloadCommand.IsRunning;
+
+    public bool CanAddToOrder(Product? product) => !AddToOrderCommand.IsRunning && IsLoggedIn;
+
+    private bool CanRemoveFromOrder(Product? product) =>
+        !RemoveFromOrderCommand.IsRunning && IsLoggedIn && HasOrder;
+
+    private async Task LoadData()
+    {
+        await Task.WhenAll(LoadProducts(), LoadAuthedUserData());
+    }
+
+    private async Task LoadProducts()
+    {
+        var products = await ProductService.GetProductsAsync();
+
+        if (products.Error != null || products.Data == null)
+        {
+            MessageBox.Show("Не удалось загрузить список товаров");
+            return;
+        }
+
+        Products.Clear();
+        foreach (var product in products.Data)
+        {
+            Products.Add(product);
+        }
+    }
+
+    private async Task LoadAuthedUserData()
+    {
+        var authedUserResult = await UserService.GetAuthedUserAsync();
+
+        if (authedUserResult.Error != null || authedUserResult.Data == null)
+        {
+            return;
+        }
+
+        AuthedUser = authedUserResult.Data;
+
+        var ordersResult = await UserService.GetOrdersByUserIdAsync(
+            AuthedUser.Id,
+            shared.Enums.OrderStatus.Inactive
+        );
+
+        if (ordersResult.Error != null || ordersResult.Data == null)
+        {
+            return;
+        }
+
+        Order = ordersResult.Data[0];
+    }
+
+    private void OpenLogin()
+    {
+        WindowManager.ShowWindow<LoginView>();
+        WindowManager.CloseWindow<MainView>();
+    }
+
+    private void Logout()
+    {
+        TokenStorage.ClearToken();
+        AuthedUser = null;
+    }
+
+    private async Task AddToOrder(Product? product)
+    {
+        if (product == null)
+            return;
+
+        if (HasOrder)
+        {
+            var orderItemResult = await OrderService.GetOrderItemByOrderAndProductIdAsync(
+                Order!.Id,
+                product.Id
+            );
+
+            if (orderItemResult.Error == null && orderItemResult.Data != null)
+            {
+                MessageBox.Show("Данный товар уже добавлен");
+                return;
+            }
+        }
+        else
+        {
+            var newOrder = new Order
+            {
+                OrderStatus = shared.Enums.OrderStatus.Inactive,
+                UserId = AuthedUser!.Id,
+            };
+
+            var postedOrderResult = await OrderService.PostOrderAsync(newOrder);
+
+            if (postedOrderResult.Error != null || postedOrderResult.Data == null)
+            {
+                MessageBox.Show("Не удалось создать новый заказ");
                 return;
             }
 
-            Products.Clear();
-            foreach (var product in products.Data)
-            {
-                Products.Add(product);
-            }
+            Order = postedOrderResult.Data;
         }
 
-        private async Task CheckUserAuth()
+        var newOrderItem = new OrderItem { ProductId = product.Id, OrderId = Order!.Id };
+
+        var postedOrderItemResult = await OrderItemsService.PostOrderItemAsync(newOrderItem);
+
+        if (postedOrderItemResult.Error != null)
         {
-            var authedUser = await UserService.GetAuthedUserAsync();
-
-            if (authedUser.Error != null || authedUser.Data == null)
-            {
-                HasOrders = false;
-                return;
-            }
-
-            AuthedUser = authedUser.Data;
-
-            var orders = await UserService.GetOrdersByUserIdAsync(AuthedUser.Id);
-            HasOrders = orders.Data != null && orders.Data.Count > 0;
+            MessageBox.Show("Не удалось добавить товар в заказ");
+            return;
         }
 
-        private void OpenLogin()
+        await LoadData();
+    }
+
+    private async Task RemoveFromOrder(Product? product)
+    {
+        if (product == null)
+            return;
+
+        var orderItemResult = await OrderService.GetOrderItemByOrderAndProductIdAsync(
+            Order!.Id,
+            product.Id
+        );
+
+        if (orderItemResult.Error != null || orderItemResult.Data == null)
         {
-            WindowManager.ShowWindow<LoginView>();
-            WindowManager.CloseWindow<MainView>();
+            MessageBox.Show("Товар отсутсвует в заказе");
+            return;
         }
 
-        private async Task AddToOrder(object parameter)
-        {
-            if (!(parameter is Product product))
-                return;
-        }
+        var deletedOrderItemResult = await OrderItemsService.DeleteOrderItemAsync(
+            orderItemResult.Data.Id
+        );
 
-        private async Task RemoveFromOrder(object parameter)
+        if (deletedOrderItemResult.Error != null)
         {
-            if (!(parameter is Product product))
-                return;
+            MessageBox.Show("Не удалось удалить товар из заказа");
         }
     }
 }

@@ -12,8 +12,8 @@ using backend.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(backendContext))]
-    [Migration("20250403164845_First")]
-    partial class First
+    [Migration("20250405133256_Second")]
+    partial class Second
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -36,17 +36,13 @@ namespace backend.Migrations
                     b.Property<int>("OrderStatus")
                         .HasColumnType("integer");
 
-                    b.Property<int>("PickupPointId")
+                    b.Property<int?>("PickupPointId")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("UserId")
+                    b.Property<int>("UserId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("PickupPointId");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Order");
                 });
@@ -69,10 +65,6 @@ namespace backend.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("OrderId");
-
-                    b.HasIndex("ProductId");
 
                     b.ToTable("OrderItem");
                 });
@@ -151,62 +143,6 @@ namespace backend.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("User");
-                });
-
-            modelBuilder.Entity("shared.Models.Order", b =>
-                {
-                    b.HasOne("shared.Models.PickupPoint", "PickupPoint")
-                        .WithMany("Orders")
-                        .HasForeignKey("PickupPointId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("shared.Models.User", "User")
-                        .WithMany("Orders")
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("PickupPoint");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("shared.Models.OrderItem", b =>
-                {
-                    b.HasOne("shared.Models.Order", "Order")
-                        .WithMany("OrderItems")
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("shared.Models.Product", "Product")
-                        .WithMany("OrderItem")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Order");
-
-                    b.Navigation("Product");
-                });
-
-            modelBuilder.Entity("shared.Models.Order", b =>
-                {
-                    b.Navigation("OrderItems");
-                });
-
-            modelBuilder.Entity("shared.Models.PickupPoint", b =>
-                {
-                    b.Navigation("Orders");
-                });
-
-            modelBuilder.Entity("shared.Models.Product", b =>
-                {
-                    b.Navigation("OrderItem");
-                });
-
-            modelBuilder.Entity("shared.Models.User", b =>
-                {
-                    b.Navigation("Orders");
                 });
 #pragma warning restore 612, 618
         }

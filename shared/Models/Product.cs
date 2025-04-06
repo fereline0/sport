@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace shared.Models
 {
@@ -9,9 +10,14 @@ namespace shared.Models
             OrderItem = new Collection<OrderItem>();
         }
 
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public string Image { get; set; }
+        [Required]
+        public string? Name { get; set; }
+
+        [Required]
+        public string? Description { get; set; }
+
+        [Required]
+        public string? Image { get; set; }
         public decimal Price { get; set; }
         public decimal? Discount { get; set; }
         public Collection<OrderItem> OrderItem { get; set; }

@@ -14,7 +14,6 @@ public abstract class BaseService
     )
     {
         _httpClient = httpClientFactory.CreateClient(httpClientName);
-        Clipboard.SetText(_httpClient.DefaultRequestHeaders.ToString());
     }
 
     protected async Task<ServiceResult<T>> GetAsync<T>(string endpoint)

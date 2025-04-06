@@ -47,7 +47,6 @@ namespace frontend
         private void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton(Configuration!);
-
             services.AddSingleton<TokenStorage>();
 
             string? apiURI = Configuration!["API:URI"];
@@ -56,26 +55,19 @@ namespace frontend
                 throw new InvalidOperationException("API base URL is not configured.");
             }
 
-            TokenStorage? tokenStorage = services
-                .BuildServiceProvider()
-                .GetRequiredService<TokenStorage>();
-            string? token = tokenStorage.LoadToken();
+            services.AddTransient<TokenHandler>();
 
-            services.AddHttpClient(
-                "DefaultAPIClient",
-                client =>
+            services
+                .AddHttpClient("DefaultAPIClient")
+                .AddHttpMessageHandler<TokenHandler>()
+                .ConfigureHttpClient(client =>
                 {
                     client.BaseAddress = new Uri(apiURI);
-
-                    if (!string.IsNullOrEmpty(token))
-                    {
-                        client.DefaultRequestHeaders.Add("Authorization", "Bearer " + token);
-                    }
-                }
-            );
+                });
 
             services.AddTransient<AuthService>();
             services.AddTransient<UserService>();
+            services.AddTransient<OrderService>();
             services.AddTransient<OrderItemsService>();
             services.AddTransient<ProductService>();
             services.AddTransient<MainView>();

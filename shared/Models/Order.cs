@@ -1,4 +1,5 @@
-﻿using shared.Enums;
+﻿using System.ComponentModel.DataAnnotations;
+using shared.Enums;
 
 namespace shared.Models
 {
@@ -10,10 +11,10 @@ namespace shared.Models
         }
 
         public OrderStatus OrderStatus { get; set; } = OrderStatus.Inactive;
-        public int PickupPointId { get; set; }
-        public PickupPoint? PickupPoint { get; set; }
-        public int? UserId { get; set; }
-        public User? User { get; set; }
-        public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
+        public int? PickupPointId { get; set; }
+
+        [Required]
+        public int UserId { get; set; }
+        public ICollection<OrderItem> OrderItems { get; set; }
     }
 }

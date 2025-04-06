@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using backend.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using backend.Data;
 using shared.Models;
 
 namespace backend.Controllers
@@ -40,6 +40,22 @@ namespace backend.Controllers
             }
 
             return order;
+        }
+
+        // GET: api/Orders/5/OrderItems/5
+        [HttpGet("{id}/OrderItems/{productId}")]
+        public async Task<ActionResult<OrderItem>> GetOrderItemsByOrderId(int id, int productId)
+        {
+            var orderItem = await _context.OrderItem.FirstOrDefaultAsync(o =>
+                o.OrderId == id && o.ProductId == productId
+            );
+
+            if (orderItem == null)
+            {
+                return NotFound();
+            }
+
+            return orderItem;
         }
 
         // PUT: api/Orders/5

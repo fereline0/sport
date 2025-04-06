@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace shared.Models
 {
@@ -9,7 +10,8 @@ namespace shared.Models
             Orders = new Collection<Order>();
         }
 
-        public string Address { get; set; }
+        [Required]
+        public string? Address { get; set; }
         public Collection<Order> Orders { get; set; }
     }
 }

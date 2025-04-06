@@ -23,7 +23,10 @@
                     <DataTemplate>
                         <components:ProductPreview Margin="5" NameProduct="{Binding Name}" Description="{Binding Description}" Image="{Binding Image}" Price="{Binding Price}">
                             <components:ProductPreview.EndContent>
-                                <Button Command="{Binding DataContext.AddToOrderCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}">Добавить в заказ</Button>
+                                <StackPanel>
+                                    <Button Margin="5" Command="{Binding DataContext.AddToOrderCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" IsEnabled="{Binding CanAddToOrder}">Добавить в заказ</Button>
+                                    <Button Margin="5" Command="{Binding DataContext.RemoveFromOrderCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}">Удалить из заказа</Button>
+                                </StackPanel>
                             </components:ProductPreview.EndContent>
                         </components:ProductPreview>
                     </DataTemplate>
@@ -35,7 +38,7 @@
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button MinWidth="80" Margin="5" Command="{Binding ReloadCommand}">Обновить</Button>
                 <Button MinWidth="80" Margin="5" Command="{Binding LoginCommand}">Войти</Button>
-                <Button MinWidth="80" Margin="5">Заказ</Button>
+                <Button MinWidth="80" Margin="5" Command="{Binding LogoutCommand}">Выйти</Button>
             </StackPanel>
         </Border>
     </Grid>
