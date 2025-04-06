@@ -18,19 +18,6 @@ namespace frontend.Components
             set { SetValue(NameProductProperty, value); }
         }
 
-        public static readonly DependencyProperty DescriptionProperty = DependencyProperty.Register(
-            "Description",
-            typeof(string),
-            typeof(ProductPreview),
-            new PropertyMetadata(string.Empty)
-        );
-
-        public string Description
-        {
-            get { return (string)GetValue(DescriptionProperty); }
-            set { SetValue(DescriptionProperty, value); }
-        }
-
         public static readonly DependencyProperty PriceProperty = DependencyProperty.Register(
             "Price",
             typeof(decimal),

@@ -45,6 +45,31 @@ namespace frontend.Utils
                 return window.ShowDialog();
             }
 
+            public void ShowWindow<T>(params object[] parameters)
+                where T : Window
+            {
+                if (_openedWindows.TryGetValue(typeof(T), out var window))
+                {
+                    window.Activate();
+                    return;
+                }
+
+                window = (T)
+                    ActivatorUtilities.CreateInstance(_serviceProvider, typeof(T), parameters);
+                window.Closed += (_, _) => _openedWindows.Remove(typeof(T));
+
+                _openedWindows[typeof(T)] = window;
+                window.Show();
+            }
+
+            public bool? ShowDialog<T>(params object[] parameters)
+                where T : Window
+            {
+                var window = (T)
+                    ActivatorUtilities.CreateInstance(_serviceProvider, typeof(T), parameters);
+                return window.ShowDialog();
+            }
+
             public void CloseWindow<T>()
                 where T : Window
             {

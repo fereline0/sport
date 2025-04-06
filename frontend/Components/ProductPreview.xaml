@@ -4,9 +4,8 @@
     <Border Background="White" BorderBrush="LightGray" BorderThickness="1" CornerRadius="5" Padding="10">
         <StackPanel>
             <Image Source="{Binding Image}" Height="100" Stretch="Uniform" />
-            <TextBlock Text="{Binding NameProduct, RelativeSource={RelativeSource AncestorType=UserControl}}" FontWeight="Bold" FontSize="16"/>
-            <TextBlock Text="{Binding Description, RelativeSource={RelativeSource AncestorType=UserControl}}" TextWrapping="Wrap"/>
-            <TextBlock Text="{Binding Price, RelativeSource={RelativeSource AncestorType=UserControl}}" FontWeight="Bold"/>
+            <TextBlock Text="{Binding NameProduct, RelativeSource={RelativeSource AncestorType=UserControl}}" TextWrapping="Wrap" FontWeight="Bold" FontSize="16"/>
+            <TextBlock Text="{Binding Price, StringFormat='{}{0} ₽', RelativeSource={RelativeSource AncestorType=UserControl}}" FontWeight="Bold"/>
             <ContentPresenter Content="{Binding EndContent, RelativeSource={RelativeSource AncestorType=UserControl}}" />
         </StackPanel>
     </Border>

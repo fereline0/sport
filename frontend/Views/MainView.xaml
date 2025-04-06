@@ -16,16 +16,15 @@
             <ItemsControl ItemsSource="{Binding Products}" Margin="5">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <UniformGrid Columns="2" />
+                        <StackPanel />
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <components:ProductPreview Margin="5" NameProduct="{Binding Name}" Description="{Binding Description}" Image="{Binding Image}" Price="{Binding Price}">
+                        <components:ProductPreview Margin="5" NameProduct="{Binding Name}" Image="{Binding Image}" Price="{Binding Price}">
                             <components:ProductPreview.EndContent>
                                 <StackPanel>
-                                    <Button Margin="5" Command="{Binding DataContext.AddToOrderCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" IsEnabled="{Binding CanAddToOrder}">Добавить в заказ</Button>
-                                    <Button Margin="5" Command="{Binding DataContext.RemoveFromOrderCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}">Удалить из заказа</Button>
+                                    <Button Margin="0 5" Command="{Binding DataContext.ShowDialogProductViewCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}">Детальная информация</Button>
                                 </StackPanel>
                             </components:ProductPreview.EndContent>
                         </components:ProductPreview>
@@ -36,9 +35,9 @@
 
         <Border Grid.Row="1" Background="LightGray" Padding="5">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button MinWidth="80" Margin="5" Command="{Binding ReloadCommand}">Обновить</Button>
-                <Button MinWidth="80" Margin="5" Command="{Binding LoginCommand}">Войти</Button>
-                <Button MinWidth="80" Margin="5" Command="{Binding LogoutCommand}">Выйти</Button>
+                <Button MinWidth="80" Margin="0 0 5 0" Command="{Binding ReloadCommand}">Обновить</Button>
+                <Button MinWidth="80" Margin="5 0" Command="{Binding ShowLoginViewCommand}">Войти</Button>
+                <Button MinWidth="80" Command="{Binding LogoutCommand}">Выйти</Button>
             </StackPanel>
         </Border>
     </Grid>

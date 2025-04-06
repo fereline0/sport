@@ -12,7 +12,7 @@ namespace frontend.Services
         public UserService(IHttpClientFactory httpClientFactory)
             : base(httpClientFactory) { }
 
-        public Task<ServiceResult<User>> GetUserAsync(int id) => GetAsync<User>($"Users/${id}");
+        public Task<ServiceResult<User>> GetUserAsync(int id) => GetAsync<User>($"Users/{id}");
 
         public Task<ServiceResult<User>> GetAuthedUserAsync() => GetAsync<User>("Users/me");
 

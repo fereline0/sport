@@ -71,6 +71,7 @@ namespace frontend
             services.AddTransient<OrderItemsService>();
             services.AddTransient<ProductService>();
             services.AddTransient<MainView>();
+            services.AddTransient<ProductView>();
             services.AddTransient<LoginView>();
             services.AddSingleton<WindowManager>();
         }
