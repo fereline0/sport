@@ -19,6 +19,7 @@ namespace frontend.ViewModels
         private string? _email;
         public string? Password { private get; set; }
         public AsyncRelayCommand LoginCommand { get; set; }
+        public RelayCommand ShowMainCommand { get; }
 
         public LoginViewModel(
             AuthService authService,
@@ -30,6 +31,13 @@ namespace frontend.ViewModels
             TokenStorage = tokenStorage;
             WindowManager = windowManager;
             LoginCommand = new AsyncRelayCommand(Login, CanLogin);
+            ShowMainCommand = new RelayCommand(ShowMain);
+        }
+
+        private void ShowMain()
+        {
+            WindowManager.ShowWindow<MainWindow>();
+            WindowManager.CloseWindow<LoginWindow>();
         }
 
         private bool CanLogin()
@@ -80,8 +88,7 @@ namespace frontend.ViewModels
             }
 
             TokenStorage.SaveToken(postedAuthResult.Data.token!);
-            WindowManager.ShowWindow<MainWindow>();
-            WindowManager.CloseWindow<LoginWindow>();
+            ShowMain();
         }
     }
 }

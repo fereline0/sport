@@ -17,6 +17,7 @@
                 <Label Content="Пароль"/>
                 <PasswordBox x:Name="Password" PasswordChanged="PasswordBox_PasswordChanged"/>
                 <Button Command="{Binding LoginCommand}" Margin="0 20 0 0">Войти</Button>
+                <Button Command="{Binding ShowMainCommand}" Margin="0 20 0 0">На главную</Button>
             </StackPanel>
         </Border>
     </ScrollViewer>
