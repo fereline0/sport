@@ -33,7 +33,6 @@ namespace frontend.Utils
 
                 window = _serviceProvider.GetRequiredService<T>();
                 window.Closed += (_, _) => _openedWindows.Remove(typeof(T));
-
                 _openedWindows[typeof(T)] = window;
                 window.Show();
             }

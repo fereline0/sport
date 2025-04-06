@@ -11,7 +11,7 @@ namespace frontend.ViewModels
 {
     public class ProductViewModel : NotifyPropertyChanged
     {
-        private readonly int Id;
+        private int Id;
         private readonly ProductService ProductService;
         private readonly UserService UserService;
         private readonly OrderService OrderService;
@@ -85,7 +85,6 @@ namespace frontend.ViewModels
         public AsyncRelayCommand RemoveFromOrderCommand { get; }
 
         public ProductViewModel(
-            int id,
             ProductService productService,
             UserService userService,
             OrderService orderService,
@@ -93,7 +92,6 @@ namespace frontend.ViewModels
             WindowManager windowManager
         )
         {
-            Id = id;
             ProductService = productService;
             UserService = userService;
             OrderService = orderService;
@@ -101,8 +99,12 @@ namespace frontend.ViewModels
 
             AddToOrderCommand = new AsyncRelayCommand(AddToOrder, CanAddToOrder);
             RemoveFromOrderCommand = new AsyncRelayCommand(RemoveFromOrder, CanRemoveFromOrder);
+        }
 
-            LoadData().ConfigureAwait(false);
+        public async Task Initialize(Product product)
+        {
+            Id = product.Id;
+            await LoadData();
         }
 
         private async Task LoadData()

@@ -80,8 +80,8 @@ namespace frontend.ViewModels
             }
 
             TokenStorage.SaveToken(postedAuthResult.Data.token!);
-            WindowManager.ShowWindow<MainView>();
-            WindowManager.CloseWindow<LoginView>();
+            WindowManager.ShowWindow<MainWindow>();
+            WindowManager.CloseWindow<LoginWindow>();
         }
     }
 }

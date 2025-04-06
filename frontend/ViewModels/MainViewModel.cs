@@ -11,111 +11,71 @@ using frontend.ViewModels;
 using frontend.Views;
 using shared.Models;
 
-public class MainViewModel : NotifyPropertyChanged
+namespace frontend.ViewModels
 {
-    private readonly ProductService ProductService;
-    private readonly UserService UserService;
-    private readonly TokenStorage TokenStorage;
-    private readonly WindowManager WindowManager;
-
-    public ObservableCollection<Product> Products { get; } = new ObservableCollection<Product>();
-    public RelayCommand<Product> ShowDialogProductViewCommand { get; set; }
-    public AsyncRelayCommand ReloadCommand { get; }
-    public RelayCommand ShowLoginViewCommand { get; set; }
-    public RelayCommand LogoutCommand { get; set; }
-
-    private User? _authedUser;
-    public User? AuthedUser
+    public class MainViewModel : NotifyPropertyChanged
     {
-        get => _authedUser;
-        set
+        private readonly UserService _userService;
+        private readonly TokenStorage _tokenStorage;
+        private readonly WindowManager _windowManager;
+
+        public RelayCommand ShowLoginCommand { get; }
+        public RelayCommand LogoutCommand { get; }
+
+        private User? _authedUser;
+        public User? AuthedUser
         {
-            if (_authedUser != value)
+            get => _authedUser;
+            set
             {
-                _authedUser = value;
-                OnPropertyChanged(nameof(AuthedUser));
-                ShowLoginViewCommand.NotifyCanExecuteChanged();
-                LogoutCommand.NotifyCanExecuteChanged();
+                if (_authedUser != value)
+                {
+                    _authedUser = value;
+                    OnPropertyChanged(nameof(AuthedUser));
+                    ShowLoginCommand.NotifyCanExecuteChanged();
+                    LogoutCommand.NotifyCanExecuteChanged();
+                }
             }
         }
-    }
 
-    public MainViewModel(
-        ProductService productService,
-        UserService userService,
-        TokenStorage tokenStorage,
-        WindowManager windowManager
-    )
-    {
-        ProductService = productService;
-        UserService = userService;
-        TokenStorage = tokenStorage;
-        WindowManager = windowManager;
-        ShowDialogProductViewCommand = new RelayCommand<Product>(ShowDialogProductView);
-        ReloadCommand = new AsyncRelayCommand(LoadData, CanReload);
-        ShowLoginViewCommand = new RelayCommand(ShowLoginView, CanShowLoginView);
-        LogoutCommand = new RelayCommand(Logout, CanLogout);
-
-        LoadData().ConfigureAwait(false);
-    }
-
-    private bool CanShowLoginView() => AuthedUser == null;
-
-    private bool CanLogout() => AuthedUser != null;
-
-    private bool CanReload() => !ReloadCommand.IsRunning;
-
-    private async Task LoadData()
-    {
-        await Task.WhenAll(LoadProducts(), LoadAuthedUserData());
-    }
-
-    private async Task LoadProducts()
-    {
-        var products = await ProductService.GetProductsAsync();
-
-        if (products.Error != null || products.Data == null)
+        public MainViewModel(
+            UserService userService,
+            TokenStorage tokenStorage,
+            WindowManager windowManager
+        )
         {
-            MessageBox.Show("Не удалось загрузить список товаров");
-            return;
+            _userService = userService;
+            _tokenStorage = tokenStorage;
+            _windowManager = windowManager;
+
+            ShowLoginCommand = new RelayCommand(ShowLogin, CanShowLogin);
+            LogoutCommand = new RelayCommand(Logout, CanLogout);
+
+            LoadAuthedUserData().ConfigureAwait(false);
         }
 
-        Products.Clear();
-        foreach (var product in products.Data)
-        {
-            Products.Add(product);
-        }
-    }
+        private bool CanShowLogin() => AuthedUser == null;
 
-    private async Task LoadAuthedUserData()
-    {
-        var authedUserResult = await UserService.GetAuthedUserAsync();
+        private bool CanLogout() => AuthedUser != null;
 
-        if (authedUserResult.Error != null || authedUserResult.Data == null)
+        private async Task LoadAuthedUserData()
         {
-            return;
+            var authedUserResult = await _userService.GetAuthedUserAsync();
+            if (authedUserResult.Error != null || authedUserResult.Data == null)
+                return;
+            AuthedUser = authedUserResult.Data;
         }
 
-        AuthedUser = authedUserResult.Data;
-    }
+        private void ShowLogin()
+        {
+            _windowManager.ShowWindow<LoginWindow>();
+            _windowManager.CloseWindow<MainWindow>();
+        }
 
-    private void ShowLoginView()
-    {
-        WindowManager.ShowWindow<LoginView>();
-        WindowManager.CloseWindow<MainView>();
-    }
-
-    private void Logout()
-    {
-        TokenStorage.ClearToken();
-        AuthedUser = null;
-    }
-
-    private void ShowDialogProductView(Product? product)
-    {
-        if (product == null)
-            return;
-
-        WindowManager.ShowDialog<ProductView>(product.Id);
+        private void Logout()
+        {
+            _tokenStorage.ClearToken();
+            AuthedUser = null;
+        }
     }
 }

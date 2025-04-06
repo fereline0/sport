@@ -5,6 +5,7 @@ using System.Windows;
 using frontend.Services;
 using frontend.Utils;
 using frontend.Utils.frontend;
+using frontend.ViewModels;
 using frontend.Views;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -41,7 +42,7 @@ namespace frontend
             Current.ShutdownMode = ShutdownMode.OnLastWindowClose;
 
             WindowManager windowManager = ServiceProvider.GetRequiredService<WindowManager>();
-            windowManager.ShowWindow<MainView>();
+            windowManager.ShowWindow<MainWindow>();
         }
 
         private void ConfigureServices(IServiceCollection services)
@@ -70,9 +71,15 @@ namespace frontend
             services.AddTransient<OrderService>();
             services.AddTransient<OrderItemsService>();
             services.AddTransient<ProductService>();
-            services.AddTransient<MainView>();
-            services.AddTransient<ProductView>();
-            services.AddTransient<LoginView>();
+            services.AddSingleton<NavigationService>();
+            services.AddTransient<MainWindow>();
+            services.AddTransient<HomePage>();
+            services.AddTransient<MainViewModel>();
+            services.AddTransient<LoginViewModel>();
+            services.AddTransient<HomeViewModel>();
+            services.AddTransient<ProductViewModel>();
+            services.AddTransient<ProductPage>();
+            services.AddTransient<LoginWindow>();
             services.AddSingleton<WindowManager>();
         }
     }
