@@ -7,7 +7,7 @@ namespace shared.Models
     {
         public Product()
         {
-            OrderItem = new Collection<OrderItem>();
+            OrderItems = new Collection<OrderItem>();
         }
 
         [Required]
@@ -20,6 +20,6 @@ namespace shared.Models
         public string? Image { get; set; }
         public decimal Price { get; set; }
         public decimal? Discount { get; set; }
-        public Collection<OrderItem> OrderItem { get; set; }
+        public Collection<OrderItem> OrderItems { get; set; }
     }
 }

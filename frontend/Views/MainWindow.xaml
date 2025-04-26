@@ -15,7 +15,9 @@
 
         <Border Grid.Row="1" Background="LightGray" Padding="5">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button MinWidth="80" Margin="5 0" Command="{Binding ShowLoginCommand}">Войти</Button>
+                <Button MinWidth="80" Margin="0 0 5 0" Command="{Binding ReloadUserDataCommand}">Перезагрузить данные авторизированного пользователя</Button>
+                <Button MinWidth="80" Margin="0 0 5 0" Command="{Binding ShowOrderCommand}">Заказ</Button>
+                <Button MinWidth="80" Margin="0 0 5 0" Command="{Binding ShowLoginCommand}">Войти</Button>
                 <Button MinWidth="80" Command="{Binding LogoutCommand}">Выйти</Button>
             </StackPanel>
         </Border>

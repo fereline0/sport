@@ -19,7 +19,7 @@ namespace frontend.Views
 {
     public partial class HomePage : Page
     {
-        public HomePage(ProductService productService, HomeViewModel homeViewModel)
+        public HomePage(HomeViewModel homeViewModel)
         {
             InitializeComponent();
             DataContext = homeViewModel;

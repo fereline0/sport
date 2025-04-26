@@ -16,8 +16,8 @@ namespace frontend.ViewModels
 {
     public class HomeViewModel : NotifyPropertyChanged
     {
-        private readonly ProductService _productService;
-        private readonly NavigationService _navigationService;
+        private readonly ProductService ProductService;
+        private readonly NavigationService NavigationService;
 
         public ObservableCollection<Product> Products { get; } =
             new ObservableCollection<Product>();
@@ -26,8 +26,8 @@ namespace frontend.ViewModels
 
         public HomeViewModel(ProductService productService, NavigationService navigationService)
         {
-            _productService = productService;
-            _navigationService = navigationService;
+            ProductService = productService;
+            NavigationService = navigationService;
 
             ShowProductCommand = new RelayCommand<Product>(ShowProduct);
 
@@ -36,11 +36,11 @@ namespace frontend.ViewModels
 
         private async Task LoadProducts()
         {
-            var products = await _productService.GetProductsAsync();
+            var products = await ProductService.GetProductsAsync();
 
             if (products.Error != null || products.Data == null)
             {
-                MessageBox.Show("Не удалось загрузить список товаров");
+                MessageBox.Show("Не удалось загрузить список товаров или он пуст");
                 return;
             }
 
@@ -56,7 +56,7 @@ namespace frontend.ViewModels
             if (product == null)
                 return;
 
-            _navigationService.NavigateTo<ProductPage>(product);
+            NavigationService.NavigateTo<ProductPage>(product);
         }
     }
 }

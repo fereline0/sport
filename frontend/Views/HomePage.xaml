@@ -7,7 +7,7 @@
       mc:Ignorable="d"
       Title="Главная">
     <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <ItemsControl ItemsSource="{Binding Products}" Margin="5">
+        <ItemsControl ItemsSource="{Binding Products}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <StackPanel />
@@ -18,7 +18,7 @@
                     <components:ProductPreview Margin="5" NameProduct="{Binding Name}" Image="{Binding Image}" Price="{Binding Price}">
                         <components:ProductPreview.EndContent>
                             <StackPanel>
-                                <Button Margin="0 5" 
+                                <Button Margin="0 5 0 0" 
                                         Command="{Binding DataContext.ShowProductCommand, RelativeSource={RelativeSource AncestorType=Page}}" 
                                         CommandParameter="{Binding}">
                                     Детальная информация

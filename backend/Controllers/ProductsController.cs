@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using backend.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using backend.Data;
 using shared.Models;
 
 namespace backend.Controllers
@@ -26,6 +26,22 @@ namespace backend.Controllers
         public async Task<ActionResult<IEnumerable<Product>>> GetProduct()
         {
             return await _context.Product.ToListAsync();
+        }
+
+        // GET: api/Products/Order/5
+        [HttpGet("Orders/{id}")]
+        public async Task<ActionResult<IEnumerable<Product>>> GetProductByOrder(int id)
+        {
+            var products = await _context
+                .Product.Where(p => p.OrderItems.Any(oi => oi.OrderId == id))
+                .ToListAsync();
+
+            if (products == null || !products.Any())
+            {
+                return NotFound();
+            }
+
+            return products;
         }
 
         // GET: api/Products/5

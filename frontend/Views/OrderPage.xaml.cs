@@ -12,25 +12,26 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using frontend.Services;
 using frontend.ViewModels;
 using shared.Models;
 
 namespace frontend.Views
 {
-    public partial class ProductPage : Page
+    public partial class OrderPage : Page
     {
-        public ProductPage(ProductViewModel productViewModel)
+        public OrderPage(OrderViewModel orderViewModel)
         {
             InitializeComponent();
-            DataContext = productViewModel;
+            DataContext = orderViewModel;
             Loaded += OnPageLoaded;
         }
 
-        private async void OnPageLoaded(object sender, RoutedEventArgs e)
+        private void OnPageLoaded(object sender, RoutedEventArgs e)
         {
-            if (Tag is Product product && DataContext is ProductViewModel productViewModel)
+            if (Tag is Order order && DataContext is OrderViewModel orderViewModel)
             {
-                await productViewModel.Initialize(product);
+                orderViewModel.Initialize(order);
             }
         }
     }

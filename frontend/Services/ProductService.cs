@@ -15,5 +15,8 @@ namespace frontend.Services
 
         public Task<ServiceResult<List<Product>>> GetProductsAsync() =>
             GetAsync<List<Product>>("Products");
+
+        public Task<ServiceResult<List<Product>>> GetProductsByOrderAsync(int id) =>
+            GetAsync<List<Product>>($"Products/Orders/{id}");
     }
 }

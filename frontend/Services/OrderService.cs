@@ -19,5 +19,8 @@ namespace frontend.Services
 
         public Task<ServiceResult<Order>> PostOrderAsync(Order order) =>
             PostAsync<Order, Order>("Orders", order);
+
+        public Task<ServiceResult<Order>> PutOrderAsync(Order order) =>
+            PutAsync<Order, Order>($"Orders/{order.Id}", order);
     }
 }

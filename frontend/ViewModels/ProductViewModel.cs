@@ -11,11 +11,9 @@ namespace frontend.ViewModels
 {
     public class ProductViewModel : NotifyPropertyChanged
     {
-        private int Id;
-        private readonly ProductService ProductService;
         private readonly UserService UserService;
         private readonly OrderService OrderService;
-        private readonly OrderItemsService _orderItemsService;
+        private readonly OrderItemsService OrderItemsService;
 
         private Product? _product;
         public Product? Product
@@ -85,17 +83,15 @@ namespace frontend.ViewModels
         public AsyncRelayCommand RemoveFromOrderCommand { get; }
 
         public ProductViewModel(
-            ProductService productService,
             UserService userService,
             OrderService orderService,
             OrderItemsService orderItemsService,
             WindowManager windowManager
         )
         {
-            ProductService = productService;
             UserService = userService;
             OrderService = orderService;
-            _orderItemsService = orderItemsService;
+            OrderItemsService = orderItemsService;
 
             AddToOrderCommand = new AsyncRelayCommand(AddToOrder, CanAddToOrder);
             RemoveFromOrderCommand = new AsyncRelayCommand(RemoveFromOrder, CanRemoveFromOrder);
@@ -103,25 +99,8 @@ namespace frontend.ViewModels
 
         public async Task Initialize(Product product)
         {
-            Id = product.Id;
-            await LoadData();
-        }
-
-        private async Task LoadData()
-        {
-            await Task.WhenAll(LoadProduct(), LoadAuthedUserData());
-        }
-
-        private async Task LoadProduct()
-        {
-            var result = await ProductService.GetProductAsync(Id);
-            if (result.Error != null || result.Data == null)
-            {
-                MessageBox.Show("Продукт не найден");
-                return;
-            }
-
-            Product = result.Data;
+            Product = product;
+            await LoadAuthedUserData();
         }
 
         private async Task LoadAuthedUserData()
@@ -136,13 +115,12 @@ namespace frontend.ViewModels
             }
 
             AuthedUser = userResult.Data;
-
             await LoadOrderDataAsync();
         }
 
         private async Task LoadOrderDataAsync()
         {
-            if (AuthedUser == null || Product == null)
+            if (AuthedUser == null)
                 return;
 
             var ordersResult = await UserService.GetOrdersByUserIdAsync(
@@ -150,15 +128,19 @@ namespace frontend.ViewModels
                 shared.Enums.OrderStatus.Inactive
             );
 
-            if (ordersResult.Error != null || ordersResult.Data == null)
+            if (ordersResult.Error != null)
             {
                 Order = null;
                 OrderItem = null;
                 return;
             }
 
-            Order = ordersResult.Data[0];
-            await LoadOrderItemAsync();
+            Order = ordersResult.Data?.FirstOrDefault();
+
+            if (Order != null && Product != null)
+            {
+                await LoadOrderItemAsync();
+            }
         }
 
         private async Task LoadOrderItemAsync()
@@ -207,14 +189,14 @@ namespace frontend.ViewModels
 
             var newItem = new OrderItem { ProductId = Product.Id, OrderId = Order!.Id };
 
-            var itemResult = await _orderItemsService.PostOrderItemAsync(newItem);
+            var itemResult = await OrderItemsService.PostOrderItemAsync(newItem);
             if (itemResult.Error != null)
             {
                 MessageBox.Show("Не удалось добавить товар в корзину");
                 return;
             }
 
-            await LoadAuthedUserData();
+            await LoadOrderItemAsync();
         }
 
         private async Task RemoveFromOrder()
@@ -222,14 +204,14 @@ namespace frontend.ViewModels
             if (OrderItem == null)
                 return;
 
-            var result = await _orderItemsService.DeleteOrderItemAsync(OrderItem.Id);
+            var result = await OrderItemsService.DeleteOrderItemAsync(OrderItem.Id);
             if (result.Error != null)
             {
                 MessageBox.Show("Не удалось удалить товар из корзины");
                 return;
             }
 
-            OrderItem = null;
+            await LoadOrderItemAsync();
         }
     }
 }

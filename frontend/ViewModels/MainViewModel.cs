@@ -1,26 +1,46 @@
 ﻿using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using CommunityToolkit.Mvvm.Input;
-using frontend;
 using frontend.Services;
 using frontend.Utils;
 using frontend.Utils.frontend;
 using frontend.ViewModels;
 using frontend.Views;
+using shared.Enums;
 using shared.Models;
 
 namespace frontend.ViewModels
 {
     public class MainViewModel : NotifyPropertyChanged
     {
-        private readonly UserService _userService;
-        private readonly TokenStorage _tokenStorage;
-        private readonly WindowManager _windowManager;
+        private readonly UserService UserService;
+        private readonly TokenStorage TokenStorage;
+        private readonly WindowManager WindowManager;
+        private readonly NavigationService NavigationService;
 
         public RelayCommand ShowLoginCommand { get; }
+        public RelayCommand ShowOrderCommand { get; }
         public RelayCommand LogoutCommand { get; }
+        public AsyncRelayCommand ReloadUserDataCommand { get; }
+
+        private Order? _order;
+        public Order? Order
+        {
+            get => _order;
+            private set
+            {
+                if (_order != value)
+                {
+                    _order = value;
+                    OnPropertyChanged(nameof(Order));
+                    ShowOrderCommand.NotifyCanExecuteChanged();
+                    ShowLoginCommand.NotifyCanExecuteChanged();
+                    LogoutCommand.NotifyCanExecuteChanged();
+                    ReloadUserDataCommand.NotifyCanExecuteChanged();
+                }
+            }
+        }
 
         private User? _authedUser;
         public User? AuthedUser
@@ -34,22 +54,28 @@ namespace frontend.ViewModels
                     OnPropertyChanged(nameof(AuthedUser));
                     ShowLoginCommand.NotifyCanExecuteChanged();
                     LogoutCommand.NotifyCanExecuteChanged();
+                    ReloadUserDataCommand.NotifyCanExecuteChanged();
                 }
             }
         }
 
         public MainViewModel(
             UserService userService,
+            OrderService orderService,
             TokenStorage tokenStorage,
-            WindowManager windowManager
+            WindowManager windowManager,
+            NavigationService navigationService
         )
         {
-            _userService = userService;
-            _tokenStorage = tokenStorage;
-            _windowManager = windowManager;
+            UserService = userService;
+            TokenStorage = tokenStorage;
+            WindowManager = windowManager;
+            NavigationService = navigationService;
 
             ShowLoginCommand = new RelayCommand(ShowLogin, CanShowLogin);
+            ShowOrderCommand = new RelayCommand(ShowOrder, CanShowOrder);
             LogoutCommand = new RelayCommand(Logout, CanLogout);
+            ReloadUserDataCommand = new AsyncRelayCommand(LoadAuthedUserData, CanReloadUserData);
 
             LoadAuthedUserData().ConfigureAwait(false);
         }
@@ -58,24 +84,46 @@ namespace frontend.ViewModels
 
         private bool CanLogout() => AuthedUser != null;
 
+        private bool CanShowOrder() => Order != null;
+
+        private bool CanReloadUserData() => AuthedUser != null;
+
         private async Task LoadAuthedUserData()
         {
-            var authedUserResult = await _userService.GetAuthedUserAsync();
-            if (authedUserResult.Error != null || authedUserResult.Data == null)
-                return;
+            var authedUserResult = await UserService.GetAuthedUserAsync();
             AuthedUser = authedUserResult.Data;
+
+            if (AuthedUser == null)
+            {
+                return;
+            }
+
+            var ordersResult = await UserService.GetOrdersByUserIdAsync(
+                AuthedUser.Id,
+                OrderStatus.Inactive
+            );
+            Order = ordersResult.Data?[0];
         }
 
         private void ShowLogin()
         {
-            _windowManager.ShowWindow<LoginWindow>();
-            _windowManager.CloseWindow<MainWindow>();
+            WindowManager.ShowWindow<LoginWindow>();
+            WindowManager.CloseWindow<MainWindow>();
+        }
+
+        private void ShowOrder()
+        {
+            if (Order == null)
+                return;
+
+            NavigationService.NavigateTo<OrderPage>(Order);
         }
 
         private void Logout()
         {
-            _tokenStorage.ClearToken();
+            TokenStorage.ClearToken();
             AuthedUser = null;
+            Order = null;
         }
     }
 }
