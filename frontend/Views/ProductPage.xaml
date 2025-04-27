@@ -29,6 +29,12 @@
                     <Button Margin="0 0 0 5" 
                            Command="{Binding RemoveFromOrderCommand}" 
                            Content="Удалить из заказа"/>
+                    <Button Margin="0 0 0 5" 
+                           Command="{Binding UpdateProductCommand}" 
+                           Content="Обновить"/>
+                    <Button Margin="0 0 0 5" 
+                           Command="{Binding DeleteProductCommand}" 
+                           Content="Удалить"/>
                 </StackPanel>
             </StackPanel>
         </Border>

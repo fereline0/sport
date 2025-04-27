@@ -79,6 +79,8 @@ namespace frontend
             services.AddTransient<HomeViewModel>();
             services.AddTransient<ProductViewModel>();
             services.AddTransient<ProductPage>();
+            services.AddTransient<ProductFormViewModel>();
+            services.AddTransient<ProductFormPage>();
             services.AddTransient<OrderPage>();
             services.AddTransient<OrderPage>();
             services.AddTransient<PickupPointService>();

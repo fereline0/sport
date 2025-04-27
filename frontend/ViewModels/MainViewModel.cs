@@ -86,7 +86,7 @@ namespace frontend.ViewModels
 
         private bool CanShowOrder() => Order != null;
 
-        private bool CanReloadUserData() => AuthedUser != null;
+        private bool CanReloadUserData() => AuthedUser != null && !ReloadUserDataCommand.IsRunning;
 
         private async Task LoadAuthedUserData()
         {

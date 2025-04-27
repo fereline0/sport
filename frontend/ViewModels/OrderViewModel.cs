@@ -76,7 +76,7 @@ namespace frontend.ViewModels
             if (Order == null)
             {
                 MessageBox.Show("Заказ не был инициализирован");
-                return;
+                NavigationService.NavigateTo<HomePage>();
             }
 
             var products = await ProductService.GetProductsByOrderAsync(Order.Id);
@@ -140,8 +140,6 @@ namespace frontend.ViewModels
 
             Order.PickupPointId = SelectedPickupPoint.Id;
             Order.OrderStatus = OrderStatus.New;
-
-            MessageBox.Show(Order.Id.ToString());
 
             var result = await OrderService.PutOrderAsync(Order);
             if (

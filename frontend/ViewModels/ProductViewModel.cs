@@ -1,19 +1,23 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using CommunityToolkit.Mvvm.Input;
 using frontend.Services;
 using frontend.Utils;
 using frontend.Utils.frontend;
+using frontend.Views;
 using shared.Models;
 
 namespace frontend.ViewModels
 {
     public class ProductViewModel : NotifyPropertyChanged
     {
+        private readonly NavigationService NavigationService;
         private readonly UserService UserService;
         private readonly OrderService OrderService;
         private readonly OrderItemsService OrderItemsService;
+        private readonly ProductService ProductService;
 
         private Product? _product;
         public Product? Product
@@ -27,6 +31,8 @@ namespace frontend.ViewModels
                     OnPropertyChanged(nameof(Product));
                     AddToOrderCommand.NotifyCanExecuteChanged();
                     RemoveFromOrderCommand.NotifyCanExecuteChanged();
+                    UpdateProductCommand.NotifyCanExecuteChanged();
+                    DeleteProductCommand.NotifyCanExecuteChanged();
                 }
             }
         }
@@ -81,26 +87,35 @@ namespace frontend.ViewModels
 
         public AsyncRelayCommand AddToOrderCommand { get; }
         public AsyncRelayCommand RemoveFromOrderCommand { get; }
+        public RelayCommand UpdateProductCommand { get; }
+        public AsyncRelayCommand DeleteProductCommand { get; }
 
         public ProductViewModel(
+            NavigationService navigationService,
             UserService userService,
             OrderService orderService,
             OrderItemsService orderItemsService,
+            ProductService productService,
             WindowManager windowManager
         )
         {
+            NavigationService = navigationService;
             UserService = userService;
             OrderService = orderService;
             OrderItemsService = orderItemsService;
+            ProductService = productService;
 
             AddToOrderCommand = new AsyncRelayCommand(AddToOrder, CanAddToOrder);
             RemoveFromOrderCommand = new AsyncRelayCommand(RemoveFromOrder, CanRemoveFromOrder);
+            UpdateProductCommand = new RelayCommand(UpdateProduct, CanUpdateProduct);
+            DeleteProductCommand = new AsyncRelayCommand(DeleteProduct, CanDeleteProduct);
+
+            LoadAuthedUserData().ConfigureAwait(false);
         }
 
-        public async Task Initialize(Product product)
+        public void Initialize(Product product)
         {
             Product = product;
-            await LoadAuthedUserData();
         }
 
         private async Task LoadAuthedUserData()
@@ -165,6 +180,11 @@ namespace frontend.ViewModels
         private bool CanRemoveFromOrder() =>
             !RemoveFromOrderCommand.IsRunning && AuthedUser != null && OrderItem != null;
 
+        private bool CanUpdateProduct() => AuthedUser?.Role == UserRole.Admin;
+
+        private bool CanDeleteProduct() =>
+            !DeleteProductCommand.IsRunning && AuthedUser?.Role == UserRole.Admin;
+
         private async Task AddToOrder()
         {
             if (Product == null || AuthedUser == null)
@@ -212,6 +232,29 @@ namespace frontend.ViewModels
             }
 
             await LoadOrderItemAsync();
+        }
+
+        private void UpdateProduct()
+        {
+            if (Product == null || AuthedUser?.Role != UserRole.Admin)
+                return;
+
+            NavigationService.NavigateTo<ProductFormPage>(Product);
+        }
+
+        private async Task DeleteProduct()
+        {
+            if (Product == null || AuthedUser?.Role != UserRole.Admin)
+                return;
+
+            var result = await ProductService.DeleteProductAsync(Product);
+            if (result.Error != null)
+            {
+                MessageBox.Show("Не удалось удалить продукт");
+                return;
+            }
+
+            NavigationService.NavigateTo<HomePage>();
         }
     }
 }

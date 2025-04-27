@@ -17,20 +17,20 @@ using shared.Models;
 
 namespace frontend.Views
 {
-    public partial class ProductPage : Page
+    public partial class ProductFormPage : Page
     {
-        public ProductPage(ProductViewModel productViewModel)
+        public ProductFormPage(ProductFormViewModel productFormViewModel)
         {
             InitializeComponent();
-            DataContext = productViewModel;
+            DataContext = productFormViewModel;
             Loaded += OnPageLoaded;
         }
 
         private void OnPageLoaded(object sender, RoutedEventArgs e)
         {
-            if (Tag is Product product && DataContext is ProductViewModel productViewModel)
+            if (Tag is Product product && DataContext is ProductFormViewModel productFormViewModel)
             {
-                productViewModel.Initialize(product);
+                productFormViewModel.Initialize(product);
             }
         }
     }
